@@ -14,11 +14,11 @@ export class LogRoute implements Routes {
 
   private initializeRoutes() {
     this.router.get(`${this.path}`, this.log.getLogs);
+    this.router.get(`${this.path}/store/whatsapp/:id`, this.log.getStoreWhatsappStats);
     this.router.put(`${this.path}/external/:id`, this.log.getLogByExternalId);
     this.router.get(`${this.path}/:id`, this.log.getLogById);
     this.router.post(`${this.path}`, this.log.createLog);
     this.router.delete(`${this.path}/:id`, this.log.deleteLog);
 
-    this.router.get(`${this.path}/store/whatsapp/:id`, this.log.getStoreWhatsappStats);
   }
 }
