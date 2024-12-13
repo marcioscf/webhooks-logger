@@ -59,4 +59,17 @@ export class LogController {
       next(error);
     }
   };
+
+
+  public getStoreWhatsappStats = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const storeId: string = req.params.id;
+      const logAnalysis = await this.log.getStoreWhatsappStats(storeId);
+
+      res.status(200).json({ data: logAnalysis, message: 'analysis' });
+    } catch (error) {
+      next(error);
+    }
+  };
+  
 }

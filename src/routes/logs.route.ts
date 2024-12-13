@@ -18,5 +18,7 @@ export class LogRoute implements Routes {
     this.router.get(`${this.path}/:id`, this.log.getLogById);
     this.router.post(`${this.path}`, this.log.createLog);
     this.router.delete(`${this.path}/:id`, this.log.deleteLog);
+
+    this.router.get(`${this.path}/store/whatsapp/:id`, this.log.getStoreWhatsappStats);
   }
 }
