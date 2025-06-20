@@ -284,4 +284,77 @@ export class LogService {
 
     return logAnalysis;
   }
+
+  public async getStoreMsgRatio(storeId: string): Promise<any[]> {
+    const logAnalysis = await LogModel.aggregate([
+      {
+        $match: {
+          'log.client.store': storeId,
+          'log.data.event': 'WPP_MESSAGE_UPSERT',
+          createdAt: { $gte: new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30) }, // last 30 days
+          'log.data.m.messageStubType': {
+            $nin: [2, 'GROUP_PARTICIPANT_ADD'],
+          },
+          'log.data.m.message.protocolMessage.type': {
+            $nin: [
+              'GROUP_PARTICIPANT_ADD',
+              'EPHEMERAL_SYNC_RESPONSE',
+              'HISTORY_SYNC_NOTIFICATION',
+              'INITIAL_SECURITY_NOTIFICATION_SETTING_SYNC',
+              'APP_STATE_SYNC_KEY_SHARE',
+              'REVOKE',
+              'MESSAGE_EDIT',
+              'PEER_DATA_OPERATION_REQUEST_RESPONSE_MESSAGE',
+            ],
+          },
+          'log.data.m.key.remoteJid': {
+            $ne: 'status@broadcast',
+          },
+        },
+      },
+      {
+        $unwind: '$log.data',
+      },
+      {
+        $addFields: {
+          isLast48h: {
+            $gte: ['$createdAt', new Date(new Date().getTime() - 1000 * 60 * 60 * 48)],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            fromMe: '$log.data.m.key.fromMe',
+            isLast48h: '$isLast48h',
+          },
+          count: { $sum: 1 },
+          dates: { $push: '$createdAt' },
+        },
+      },
+      {
+        $group: {
+          _id: '$_id.fromMe',
+          last48h: {
+            $sum: {
+              $cond: [{ $eq: ['$_id.isLast48h', true] }, '$count', 0],
+            },
+          },
+          last30d: {
+            $sum: '$count',
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          fromMe: '$_id',
+          last48h: 1,
+          last30d: 1,
+        },
+      },
+    ]);
+
+    return logAnalysis;
+  }
 }
