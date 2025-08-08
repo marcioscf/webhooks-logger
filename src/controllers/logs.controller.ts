@@ -6,6 +6,25 @@ import { LogService } from '@services/logs.service';
 export class LogController {
   public log = Container.get(LogService);
 
+  public getStoreBlockAnalysis = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const storeId: string = req.params.id;
+      const { startDate, endDate } = req.query;
+
+      let startDateObj = new Date(new Date().setDate(new Date().getDate() - 7));
+      let endDateObj = new Date();
+      if (startDate && endDate) {
+        startDateObj = new Date(startDate as string);
+        endDateObj = new Date(endDate as string);
+      }
+      const logAnalysis = await this.log.getStoreBlockAnalysis(storeId, startDateObj, endDateObj);
+
+      res.status(200).json({ data: logAnalysis, message: 'analysis' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getLogs = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const findAllLogsData: Log[] = await this.log.findAllLog();
@@ -60,7 +79,6 @@ export class LogController {
     }
   };
 
-
   public getStoreWhatsappStats = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const storeId: string = req.params.id;
@@ -71,5 +89,4 @@ export class LogController {
       next(error);
     }
   };
-  
 }
