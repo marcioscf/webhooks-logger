@@ -165,6 +165,42 @@ export class LogService {
       },
       {
         $facet: {
+          conversasRecebidas: [
+            {
+              $match: {
+                fromMe: false,
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  isGroup: '$isGroup',
+                  chat: '$chat',
+                },
+                count: {
+                  $sum: 1,
+                },
+              },
+            },
+            {
+              $group: {
+                _id: {
+                  isGroup: '$_id.isGroup',
+                },
+                count: {
+                  $sum: 1,
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                isGroup: '$_id.isGroup',
+                count: 1,
+              },
+            },
+          ],
+
           repetidas: [
             {
               $match: {
