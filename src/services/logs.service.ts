@@ -113,7 +113,7 @@ export class LogService {
                   $ifNull: [
                     {
                       $toString: {
-                        $first: '$log.data.m.message.senderKeyDistributionMessage.groupId',
+                        $first: '$log.data.m.key.remoteJid',
                       },
                     },
                     '',
